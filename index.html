@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finance Calculator</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f9;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      margin-top: 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: green;
+      text-align: center;
+    }
+    footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>SIP and Housing Comparison Calculator</h1>
+
+    <h2>SIP Future Value Calculator</h2>
+    <label for="monthlyInvestment">Monthly Investment (₹):</label>
+    <input type="number" id="monthlyInvestment" placeholder="Enter monthly investment" />
+
+    <label for="rateOfReturn">Annual Rate of Return (%):</label>
+    <input type="number" id="rateOfReturn" placeholder="Enter annual return rate" />
+
+    <label for="years">Duration (Years):</label>
+    <input type="number" id="years" placeholder="Enter investment duration in years" />
+
+    <button onclick="calculateFutureValue()">Calculate Future Value</button>
+
+    <h2>Housing Purchase vs Rent Calculator</h2>
+    <label for="houseEmi">Monthly EMI for House Purchase (₹):</label>
+    <input type="number" id="houseEmi" placeholder="Enter monthly EMI" />
+
+    <label for="monthlyRent">Monthly Rent (₹):</label>
+    <input type="number" id="monthlyRent" placeholder="Enter monthly rent" />
+
+    <label for="emiYears">Loan Duration (Years):</label>
+    <input type="number" id="emiYears" placeholder="Enter loan duration in years" />
+
+    <label for="sipRate">SIP Annual Rate of Return (%):</label>
+    <input type="number" id="sipRate" placeholder="Enter annual return rate for SIP" />
+
+    <button onclick="calculateComparison()">Calculate Comparison</button>
+
+    <h2>EMI Calculator</h2>
+    <label for="loanAmount">Loan Amount (₹):</label>
+    <input type="number" id="loanAmount" placeholder="Enter loan amount" />
+
+    <label for="loanRate">Annual Interest Rate (%):</label>
+    <input type="number" id="loanRate" placeholder="Enter interest rate" />
+
+    <label for="loanTenure">Loan Tenure (Years):</label>
+    <input type="number" id="loanTenure" placeholder="Enter loan tenure in years" />
+
+    <button onclick="calculateEmi()">Calculate EMI</button>
+
+    <div class="result" id="result"></div>
+    <div class="result" id="comparisonResult"></div>
+    <div class="result" id="emiResult"></div>
+  </div>
+
+  <footer>
+    Developed by Designer Vikku @ 9795801000
+  </footer>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js")
+        .then(() => console.log("Service Worker Registered!"))
+        .catch((error) => console.error("Service Worker Error:", error));
+    }
+
+    function calculateFutureValue() {
+      const monthlyInvestment = parseFloat(document.getElementById('monthlyInvestment').value);
+      const annualRate = parseFloat(document.getElementById('rateOfReturn').value);
+      const years = parseInt(document.getElementById('years').value);
+
+      if (isNaN(monthlyInvestment) || isNaN(annualRate) || isNaN(years) || monthlyInvestment <= 0 || annualRate <= 0 || years <= 0) {
+        document.getElementById('result').textContent = 'Please enter valid positive values for all fields.';
+        return;
+      }
+
+      const monthlyRate = annualRate / 12 / 100;
+      const months = years * 12;
+      let futureValue = 0;
+
+      for (let i = 0; i < months; i++) {
+        futureValue += monthlyInvestment * Math.pow(1 + monthlyRate, months - i);
+      }
+
+      document.getElementById('result').textContent = `Future Value after ${years} years: ₹${futureValue.toLocaleString('en-IN', {
+        maximumFractionDigits: 2
+      })}`;
+    }
+
+    function calculateComparison() {
+      const houseEmi = parseFloat(document.getElementById('houseEmi').value);
+      const monthlyRent = parseFloat(document.getElementById('monthlyRent').value);
+      const emiYears = parseInt(document.getElementById('emiYears').value);
+      const sipRate = parseFloat(document.getElementById('sipRate').value);
+
+      if (
+        isNaN(houseEmi) ||
+        isNaN(monthlyRent) ||
+        isNaN(emiYears) ||
+        isNaN(sipRate) ||
+        houseEmi <= 0 ||
+        monthlyRent <= 0 ||
+        emiYears <= 0 ||
+        sipRate <= 0
+      ) {
+        document.getElementById('comparisonResult').textContent = 'Please enter valid positive values for all fields.';
+        return;
+      }
+
+      const monthlyDifference = houseEmi - monthlyRent;
+      const sipMonthlyRate = sipRate / 12 / 100;
+      const months = emiYears * 12;
+      let futureSipValue = 0;
+
+      for (let i = 0; i < months; i++) {
+        futureSipValue += monthlyDifference * Math.pow(1 + sipMonthlyRate, months - i);
+      }
+
+      document.getElementById('comparisonResult').innerHTML = `
+        <p>Monthly Difference for SIP: ₹${monthlyDifference.toLocaleString('en-IN')}</p>
+        <p>Future Value of SIP after ${emiYears} years: ₹${futureSipValue.toLocaleString('en-IN', {
+          maximumFractionDigits: 2
+        })}</p>
+      `;
+    }
+
+    function calculateEmi() {
+      const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+      const loanRate = parseFloat(document.getElementById('loanRate').value);
+      const loanTenure = parseInt(document.getElementById('loanTenure').value);
+
+      if (isNaN(loanAmount) || isNaN(loanRate) || isNaN(loanTenure) || loanAmount <= 0 || loanRate <= 0 || loanTenure <= 0) {
+        document.getElementById('emiResult').textContent = 'Please enter valid positive values for all fields.';
+        return;
+      }
+
+      const monthlyRate = loanRate / 12 / 100;
+      const months = loanTenure * 12;
+      const emi = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+
+      document.getElementById('emiResult').textContent = `Monthly EMI: ₹${emi.toLocaleString('en-IN', {
+        maximumFractionDigits: 2
+      })}`;
+    }
+  </script>
+</body>
+</html>
